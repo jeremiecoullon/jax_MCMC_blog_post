@@ -9,7 +9,7 @@ Code to reproduce the results in the "Jax 3 ways" blog post.
 - `virtualenv venv; source venv/bin/activate`
 - `pip install -r requirements.txt`
 
-## Scripts
+## Scripts
 
 To run all the examples, simply run the bash script: `run_all_samplers.sh`
 
