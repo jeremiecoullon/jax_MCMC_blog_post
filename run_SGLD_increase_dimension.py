@@ -1,5 +1,5 @@
 from jax import random
-import numpy as onp
+import numpy as np
 import time
 
 from logistic_regression_model import gen_data, build_batch_grad_log_post
@@ -25,7 +25,7 @@ theta_true, X, y_data = gen_data(key, dim, N)
 grad_log_post = build_batch_grad_log_post(X, y_data, N)
 running_times = run_3_sgld_samplers(key, grad_log_post, N, dim, dt, num_samples,
                     theta_true, X, y_data, minibatch_size)
-onp.savetxt(f"outputs/sgld/increase_dimension/dim_{dim}.txt", running_times)
+np.savetxt(f"outputs/sgld/increase_dimension/dim_{dim}.txt", running_times)
 
 # ==============
 print("\n============\nExperiment 2\n============")
@@ -35,7 +35,7 @@ theta_true, X, y_data = gen_data(key, dim, N)
 grad_log_post = build_batch_grad_log_post(X, y_data, N)
 running_times = run_3_sgld_samplers(key, grad_log_post, N, dim, dt, num_samples,
                     theta_true, X, y_data, minibatch_size)
-onp.savetxt(f"outputs/sgld/increase_dimension/dim_{dim}.txt", running_times)
+np.savetxt(f"outputs/sgld/increase_dimension/dim_{dim}.txt", running_times)
 
 # # ==============
 print("\n============\nExperiment 3\n============")
@@ -45,7 +45,7 @@ theta_true, X, y_data = gen_data(key, dim, N)
 grad_log_post = build_batch_grad_log_post(X, y_data, N)
 running_times = run_3_sgld_samplers(key, grad_log_post, N, dim, dt, num_samples,
                     theta_true, X, y_data, minibatch_size)
-onp.savetxt(f"outputs/sgld/increase_dimension/dim_{dim}.txt", running_times)
+np.savetxt(f"outputs/sgld/increase_dimension/dim_{dim}.txt", running_times)
 
 # ==============
 print("\n============\nExperiment 4\n============")
@@ -56,4 +56,4 @@ theta_true, X, y_data = gen_data(key, dim, N)
 grad_log_post = build_batch_grad_log_post(X, y_data, N)
 running_times = run_3_sgld_samplers(key, grad_log_post, N, dim, dt, num_samples,
                     theta_true, X, y_data, minibatch_size)
-onp.savetxt(f"outputs/sgld/increase_dimension/dim_{dim}.txt", running_times)
+np.savetxt(f"outputs/sgld/increase_dimension/dim_{dim}.txt", running_times)

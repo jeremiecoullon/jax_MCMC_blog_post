@@ -1,7 +1,7 @@
 
-import numpy as onp
+import numpy as np
 
-import jax.numpy as np
+import jax.numpy as jnp
 from jax import jit, grad, value_and_grad, vmap, random
 from jax.scipy.special import logsumexp
 import warnings
@@ -12,17 +12,17 @@ warnings.filterwarnings("ignore", message='No GPU/TPU found, falling back to CPU
 
 
 def genCovMat(key, d, rho):
-    Sigma0 = onp.diag(onp.ones(d))
+    Sigma0 = np.diag(np.ones(d))
     for i in range(1,d):
         for j in range(0, i):
             Sigma0[i,j] = (random.uniform(key)*2*rho - rho)**(i-j)
             Sigma0[j,i] = Sigma0[i,j]
 
-    return np.array(Sigma0)
+    return jnp.array(Sigma0)
 
 
 def logistic(theta, x):
-    return 1/(1+np.exp(-np.dot(theta, x)))
+    return 1/(1+jnp.exp(-jnp.dot(theta, x)))
 
 batch_logistic = jit(vmap(logistic, in_axes=(None, 0)))
 batch_benoulli = vmap(random.bernoulli, in_axes=(0, 0))
@@ -52,13 +52,13 @@ def gen_data(key, dim, N):
     key, subkey1, subkey2, subkey3 = random.split(key, 4)
     rho = 0.4
     print(f"generating data, with N={N} and dim={dim}")
-    theta_true = random.normal(subkey1, shape=(dim, ))*np.sqrt(10)
+    theta_true = random.normal(subkey1, shape=(dim, ))*jnp.sqrt(10)
     covX = genCovMat(subkey2, dim, rho)
-    X = np.dot(random.normal(subkey3, shape=(N,dim)), np.linalg.cholesky(covX))
+    X = jnp.dot(random.normal(subkey3, shape=(N,dim)), jnp.linalg.cholesky(covX))
 
     p_array = batch_logistic(theta_true, X)
     keys = random.split(key, N)
-    y_data = batch_benoulli(keys, p_array).astype(np.int32)
+    y_data = batch_benoulli(keys, p_array).astype(jnp.int32)
     return theta_true, X, y_data
 
 def build_grad_log_post(X, y_data, N):
@@ -67,16 +67,16 @@ def build_grad_log_post(X, y_data, N):
     """
     @jit
     def loglikelihood(theta, x_val, y_val):
-        return -logsumexp(np.array([0., (1.-2.*y_val)*np.dot(theta, x_val)]))
+        return -logsumexp(jnp.array([0., (1.-2.*y_val)*jnp.dot(theta, x_val)]))
 
     @jit
     def log_prior(theta):
-        return -(0.5/10)*np.dot(theta,theta)
+        return -(0.5/10)*jnp.dot(theta,theta)
 
     batch_loglik = jit(vmap(loglikelihood, in_axes=(None, 0,0)))
 
     def log_post(theta):
-        return log_prior(theta) + N*np.mean(batch_loglik(theta, X, y_data), axis=0)
+        return log_prior(theta) + N*jnp.mean(batch_loglik(theta, X, y_data), axis=0)
 
     grad_log_post = jit(grad(log_post))
     return grad_log_post
@@ -88,16 +88,16 @@ def build_value_and_grad_log_post(X, y_data, N):
     """
     @jit
     def loglikelihood(theta, x_val, y_val):
-        return -logsumexp(np.array([0., (1.-2.*y_val)*np.dot(theta, x_val)]))
+        return -logsumexp(jnp.array([0., (1.-2.*y_val)*jnp.dot(theta, x_val)]))
 
     @jit
     def log_prior(theta):
-        return -(0.5/10)*np.dot(theta,theta)
+        return -(0.5/10)*jnp.dot(theta,theta)
 
     batch_loglik = jit(vmap(loglikelihood, in_axes=(None, 0,0)))
 
     def log_post(theta):
-        return log_prior(theta) + N*np.mean(batch_loglik(theta, X, y_data), axis=0)
+        return log_prior(theta) + N*jnp.mean(batch_loglik(theta, X, y_data), axis=0)
 
     val_and_grad_log_post = jit(value_and_grad(log_post))
     return val_and_grad_log_post
@@ -108,16 +108,16 @@ def build_batch_grad_log_post(X, y_data, N):
     """
     @jit
     def loglikelihood(theta, x_val, y_val):
-        return -logsumexp(np.array([0., (1.-2.*y_val)*np.dot(theta, x_val)]))
+        return -logsumexp(jnp.array([0., (1.-2.*y_val)*jnp.dot(theta, x_val)]))
 
     @jit
     def log_prior(theta):
-        return -(0.5/10)*np.dot(theta,theta)
+        return -(0.5/10)*jnp.dot(theta,theta)
 
     batch_loglik = jit(vmap(loglikelihood, in_axes=(None, 0,0)))
 
     def log_post(theta, X, y_data):
-        return log_prior(theta) + N*np.mean(batch_loglik(theta, X, y_data), axis=0)
+        return log_prior(theta) + N*jnp.mean(batch_loglik(theta, X, y_data), axis=0)
 
     grad_log_post = jit(grad(log_post))
     return grad_log_post

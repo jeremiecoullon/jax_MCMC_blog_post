@@ -1,6 +1,6 @@
 from jax import random
 import time
-import numpy as onp
+import numpy as np
 
 from logistic_regression_model import gen_data, build_value_and_grad_log_post
 from mala_samplers import run_3_mala_samplers
@@ -25,7 +25,7 @@ dt = 5e-3
 theta_true, X, y_data = gen_data(key, dim, N)
 grad_log_post = build_value_and_grad_log_post(X, y_data, N)
 running_times = run_3_mala_samplers(key, grad_log_post, N, dim, dt, num_samples, theta_true)
-onp.savetxt(f"outputs/mala/increase_data/increase_data_{N}.txt", running_times)
+np.savetxt(f"outputs/mala/increase_data/increase_data_{N}.txt", running_times)
 
 # ==============
 # (N,dim) = (1e4, 5)
@@ -36,7 +36,7 @@ dt = 5e-4
 theta_true, X, y_data = gen_data(key, dim, N)
 grad_log_post = build_value_and_grad_log_post(X, y_data, N)
 running_times = run_3_mala_samplers(key, grad_log_post, N, dim, dt, num_samples, theta_true)
-onp.savetxt(f"outputs/mala/increase_data/increase_data_{N}.txt", running_times)
+np.savetxt(f"outputs/mala/increase_data/increase_data_{N}.txt", running_times)
 
 # ==============
 # (N,dim) = (1e5, 5)
@@ -47,7 +47,7 @@ dt = 5e-5
 theta_true, X, y_data = gen_data(key, dim, N)
 grad_log_post = build_value_and_grad_log_post(X, y_data, N)
 running_times = run_3_mala_samplers(key, grad_log_post, N, dim, dt, num_samples, theta_true)
-onp.savetxt(f"outputs/mala/increase_data/increase_data_{N}.txt", running_times)
+np.savetxt(f"outputs/mala/increase_data/increase_data_{N}.txt", running_times)
 
 
 # ==============
@@ -59,4 +59,4 @@ dt = 5e-6
 theta_true, X, y_data = gen_data(key, dim, N)
 grad_log_post = build_value_and_grad_log_post(X, y_data, N)
 running_times = run_3_mala_samplers(key, grad_log_post, N, dim, dt, num_samples, theta_true)
-onp.savetxt(f"outputs/mala/increase_data/increase_data_{N}.txt", running_times)
+np.savetxt(f"outputs/mala/increase_data/increase_data_{N}.txt", running_times)

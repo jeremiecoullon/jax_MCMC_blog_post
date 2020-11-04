@@ -1,17 +1,17 @@
-import jax.numpy as np
+import jax.numpy as jnp
 from jax import partial, jit, vmap, grad, random, lax, ops
-import numpy as onp
+import numpy as np
 import time
 
 # 1. Pure python/numpy (except for the function `grad_log_post`)
 def ula_sampler_python(grad_log_post, num_samples, dt, x_0, print_rate=500):
     dim, = x_0.shape
-    samples = onp.zeros((num_samples, dim))
+    samples = np.zeros((num_samples, dim))
     paramCurrent = x_0
     print(f"Python sampler:")
     for i in range(num_samples):
         paramGradCurrent = grad_log_post(paramCurrent)
-        paramCurrent = paramCurrent + dt*paramGradCurrent + onp.sqrt(2*dt)*onp.random.normal(size=(paramCurrent.shape))
+        paramCurrent = paramCurrent + dt*paramGradCurrent + np.sqrt(2*dt)*np.random.normal(size=(paramCurrent.shape))
         samples[i] = paramCurrent
         if i%print_rate==0:
             print(f"Iteration {i}/{num_samples}")
@@ -23,13 +23,13 @@ def ula_sampler_python(grad_log_post, num_samples, dt, x_0, print_rate=500):
 def ula_kernel(key, param, grad_log_post, dt):
     key, subkey = random.split(key)
     paramGrad = grad_log_post(param)
-    param = param + dt*paramGrad + np.sqrt(2*dt)*random.normal(key=subkey, shape=(param.shape))
+    param = param + dt*paramGrad + jnp.sqrt(2*dt)*random.normal(key=subkey, shape=(param.shape))
     return key, param
 
 
 def ula_sampler_jax_kernel(key, grad_log_post, num_samples, dt, x_0, print_rate=500):
     dim, = x_0.shape
-    samples = onp.zeros((num_samples, dim))
+    samples = np.zeros((num_samples, dim))
     param = x_0
     print(f"Python loop with Jax kernel")
     for i in range(num_samples):

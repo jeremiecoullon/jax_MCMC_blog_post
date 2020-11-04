@@ -1,6 +1,6 @@
 from jax import random
 import time
-import numpy as onp
+import numpy as np
 
 from logistic_regression_model import gen_data, build_batch_grad_log_post
 from sgld_samplers import run_3_sgld_samplers
@@ -8,7 +8,8 @@ from sgld_samplers import run_3_sgld_samplers
 """
 Run the 3 ULA samplers while increasing the dataset size
 """
-
+import warnings
+warnings.filterwarnings("ignore")
 # =============
 # These are constant throughout
 num_samples = 20000
@@ -28,7 +29,7 @@ theta_true, X, y_data = gen_data(key, dim, N)
 grad_log_post = build_batch_grad_log_post(X, y_data, N)
 running_times = run_3_sgld_samplers(key, grad_log_post, N, dim, dt, num_samples,
                     theta_true, X, y_data, minibatch_size)
-onp.savetxt(f"outputs/sgld/increase_data/increase_data_{N}.txt", running_times)
+np.savetxt(f"outputs/sgld/increase_data/increase_data_{N}.txt", running_times)
 
 # # ==============
 # (N,dim) = (1e4, 5)
@@ -42,7 +43,7 @@ theta_true, X, y_data = gen_data(key, dim, N)
 grad_log_post = build_batch_grad_log_post(X, y_data, N)
 running_times = run_3_sgld_samplers(key, grad_log_post, N, dim, dt, num_samples,
                     theta_true, X, y_data, minibatch_size)
-onp.savetxt(f"outputs/sgld/increase_data/increase_data_{N}.txt", running_times)
+np.savetxt(f"outputs/sgld/increase_data/increase_data_{N}.txt", running_times)
 
 # ==============
 # (N,dim) = (1e5, 5)
@@ -56,7 +57,7 @@ theta_true, X, y_data = gen_data(key, dim, N)
 grad_log_post = build_batch_grad_log_post(X, y_data, N)
 running_times = run_3_sgld_samplers(key, grad_log_post, N, dim, dt, num_samples,
                     theta_true, X, y_data, minibatch_size)
-onp.savetxt(f"outputs/sgld/increase_data/increase_data_{N}.txt", running_times)
+np.savetxt(f"outputs/sgld/increase_data/increase_data_{N}.txt", running_times)
 
 
 # ==============
@@ -71,4 +72,4 @@ theta_true, X, y_data = gen_data(key, dim, N)
 grad_log_post = build_batch_grad_log_post(X, y_data, N)
 running_times = run_3_sgld_samplers(key, grad_log_post, N, dim, dt, num_samples,
                     theta_true, X, y_data, minibatch_size)
-onp.savetxt(f"outputs/sgld/increase_data/increase_data_{N}.txt", running_times)
+np.savetxt(f"outputs/sgld/increase_data/increase_data_{N}.txt", running_times)

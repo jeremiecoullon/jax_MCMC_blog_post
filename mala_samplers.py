@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-import numpy as onp
-import jax.numpy as np
+import numpy as np
+import jax.numpy as jnp
 from jax import random, partial, jit, lax
 import time
 
@@ -9,7 +9,7 @@ import time
 # 1. Numpy version
 def mala_sampler_python(log_post, num_samples, dt, x_0, print_rate=500):
     dim, = x_0.shape
-    samples = onp.zeros((num_samples, dim))
+    samples = np.zeros((num_samples, dim))
     paramCurrent = x_0
     accepts = 0
     current_log_post, current_grad = log_post(paramCurrent)
@@ -17,16 +17,16 @@ def mala_sampler_python(log_post, num_samples, dt, x_0, print_rate=500):
     start = time.time()
     print(f"Running MALA for {num_samples} iterations with dt={dt}")
     for i in range(num_samples):
-        paramProp = paramCurrent + dt*current_grad + onp.sqrt(2*dt)*onp.random.normal(size=dim)
+        paramProp = paramCurrent + dt*current_grad + np.sqrt(2*dt)*np.random.normal(size=dim)
         new_log_post, new_grad = log_post(paramProp)
 
         term1 = paramProp - paramCurrent - dt*current_grad
         term2 = paramCurrent - paramProp - dt*new_grad
-        q_new = -0.25*(1/dt)*onp.dot(term1, term1)
-        q_current = -0.25*(1/dt)*onp.dot(term2, term2)
+        q_new = -0.25*(1/dt)*np.dot(term1, term1)
+        q_current = -0.25*(1/dt)*np.dot(term2, term2)
 
         log_ratio = new_log_post - current_log_post + q_current - q_new
-        if onp.log(onp.random.uniform()) < log_ratio:
+        if np.log(np.random.uniform()) < log_ratio:
             paramCurrent = paramProp
             current_log_post = new_log_post
             current_grad = new_grad
@@ -48,26 +48,26 @@ def mala_sampler_python(log_post, num_samples, dt, x_0, print_rate=500):
 @partial(jit, static_argnums=(3,5))
 def mala_kernel(key, paramCurrent, paramGradCurrent, log_post, logpostCurrent, dt):
     key, subkey1, subkey2 = random.split(key, 3)
-    paramProp = paramCurrent + dt*paramGradCurrent + np.sqrt(2*dt)*random.normal(key=subkey1, shape=paramCurrent.shape)
+    paramProp = paramCurrent + dt*paramGradCurrent + jnp.sqrt(2*dt)*random.normal(key=subkey1, shape=paramCurrent.shape)
     new_log_post, new_grad = log_post(paramProp)
 
     term1 = paramProp - paramCurrent - dt*paramGradCurrent
     term2 = paramCurrent - paramProp - dt*new_grad
-    q_new = -0.25*(1/dt)*np.dot(term1, term1)
-    q_current = -0.25*(1/dt)*np.dot(term2, term2)
+    q_new = -0.25*(1/dt)*jnp.dot(term1, term1)
+    q_current = -0.25*(1/dt)*jnp.dot(term2, term2)
 
     log_ratio = new_log_post - logpostCurrent + q_current - q_new
-    acceptBool = np.log(random.uniform(key=subkey2)) < log_ratio
-    paramCurrent = np.where(acceptBool, paramProp, paramCurrent)
-    current_grad = np.where(acceptBool, new_grad, paramGradCurrent)
-    current_log_post = np.where(acceptBool, new_log_post, logpostCurrent)
-    accepts_add = np.where(acceptBool, 1,0)
+    acceptBool = jnp.log(random.uniform(key=subkey2)) < log_ratio
+    paramCurrent = jnp.where(acceptBool, paramProp, paramCurrent)
+    current_grad = jnp.where(acceptBool, new_grad, paramGradCurrent)
+    current_log_post = jnp.where(acceptBool, new_log_post, logpostCurrent)
+    accepts_add = jnp.where(acceptBool, 1,0)
     return key, paramCurrent, current_grad, current_log_post, accepts_add
 
 
 def mala_sampler_jax_kernel(key, log_post, num_samples, dt, x_0, print_rate=500):
     dim, = x_0.shape
-    samples = onp.zeros((num_samples, dim))
+    samples = np.zeros((num_samples, dim))
     paramCurrent = x_0
     accepts = 0
     current_log_post, current_grad = log_post(paramCurrent)

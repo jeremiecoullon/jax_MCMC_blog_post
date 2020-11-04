@@ -1,21 +1,21 @@
-import jax.numpy as np
+import jax.numpy as jnp
 from jax import partial, jit, vmap, grad, random, lax, ops
-import numpy as onp
+import numpy as np
 import time
 
 
 # 1. Pure python/numpy (except for the function `grad_log_post`)
 def sgld_sampler_python(grad_log_post, num_samples, dt, x_0, X, y_data, minibatch_size, print_rate=500):
     N, dim = X.shape
-    samples = onp.zeros((num_samples, dim))
+    samples = np.zeros((num_samples, dim))
     paramCurrent = x_0
-    idx_batch = onp.random.choice(N, minibatch_size)
+    idx_batch = np.random.choice(N, minibatch_size)
     current_grad = grad_log_post(paramCurrent, X[idx_batch], y_data[idx_batch])
     print(f"Python sampler:")
     for i in range(num_samples):
-        idx_batch = onp.random.choice(N, minibatch_size)
+        idx_batch = np.random.choice(N, minibatch_size)
         paramGradCurrent = grad_log_post(paramCurrent, X[idx_batch], y_data[idx_batch])
-        paramCurrent = paramCurrent + dt*paramGradCurrent + onp.sqrt(2*dt)*onp.random.normal(size=(paramCurrent.shape))
+        paramCurrent = paramCurrent + dt*paramGradCurrent + np.sqrt(2*dt)*np.random.normal(size=(paramCurrent.shape))
         samples[i] = paramCurrent
         if i%print_rate==0:
             print(f"Iteration {i}/{num_samples}")
@@ -25,19 +25,19 @@ def sgld_sampler_python(grad_log_post, num_samples, dt, x_0, X, y_data, minibatc
 # ============
 
 # 2. Python loop with Jax kernel
-@partial(jit, static_argnums=(2,3,4,5,6))
+@partial(jit, static_argnums=(2,3,6))
 def sgld_kernel(key, param, grad_log_post, dt, X, y_data, minibatch_size):
     N, _ = X.shape
     key, subkey1, subkey2 = random.split(key, 3)
     idx_batch = random.choice(subkey1, N, shape=(minibatch_size,))
     paramGrad = grad_log_post(param, X[idx_batch], y_data[idx_batch])
-    param = param + dt*paramGrad + np.sqrt(2*dt)*random.normal(key=subkey2, shape=(param.shape))
+    param = param + dt*paramGrad + jnp.sqrt(2*dt)*random.normal(key=subkey2, shape=(param.shape))
     return key, param
 
 
 def sgld_sampler_jax_kernel(key, grad_log_post, num_samples, dt, x_0, X, y_data, minibatch_size, print_rate=500):
     dim, = x_0.shape
-    samples = onp.zeros((num_samples, dim))
+    samples = np.zeros((num_samples, dim))
     param = x_0
     print(f"Python loop with Jax kernel")
     for i in range(num_samples):
@@ -51,7 +51,7 @@ def sgld_sampler_jax_kernel(key, grad_log_post, num_samples, dt, x_0, X, y_data,
 # ============
 
 # 3. Pure Jax
-@partial(jit, static_argnums=(1,2,3,5,6,7))
+@partial(jit, static_argnums=(1,2,3,7))
 def sgld_sampler_full_jax(key, grad_log_post, num_samples, dt, x_0, X, y_data, minibatch_size):
 
     def sgld_step(carry, x):
