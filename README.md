@@ -2,7 +2,7 @@
 
 *blog post: link*
 
-Code to reproduce the results in the "Jax 3 ways" blog post.
+Code to reproduce the results in the ["Jax 3 ways" blog post](https://www.jeremiecoullon.com/2020/11/10/mcmcjax3ways/).
 
 ## Installation:
 
