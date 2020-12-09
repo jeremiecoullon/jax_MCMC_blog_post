@@ -11,14 +11,8 @@ warnings.filterwarnings("ignore", message='No GPU/TPU found, falling back to CPU
 
 
 
-def genCovMat(key, d, rho):
-    Sigma0 = np.diag(np.ones(d))
-    for i in range(1,d):
-        for j in range(0, i):
-            Sigma0[i,j] = (random.uniform(key)*2*rho - rho)**(i-j)
-            Sigma0[j,i] = Sigma0[i,j]
-
-    return jnp.array(Sigma0)
+def genCovMat(key, d):
+    return jnp.eye(d)
 
 
 def logistic(theta, x):
@@ -50,10 +44,9 @@ def gen_data(key, dim, N):
         Output data: 0 or 1s. shape=(N,)
     """
     key, subkey1, subkey2, subkey3 = random.split(key, 4)
-    rho = 0.4
     print(f"generating data, with N={N} and dim={dim}")
     theta_true = random.normal(subkey1, shape=(dim, ))*jnp.sqrt(10)
-    covX = genCovMat(subkey2, dim, rho)
+    covX = genCovMat(subkey2, dim)
     X = jnp.dot(random.normal(subkey3, shape=(N,dim)), jnp.linalg.cholesky(covX))
 
     p_array = batch_logistic(theta_true, X)

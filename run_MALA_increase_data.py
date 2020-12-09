@@ -16,7 +16,7 @@ print_rate = 5000
 dim = 5
 # =============
 
-# (N,dim) = (1e3, 5)
+
 print("============\nExperiment 1\n============")
 key = random.PRNGKey(0)
 
@@ -28,22 +28,28 @@ running_times = run_3_mala_samplers(key, grad_log_post, N, dim, dt, num_samples,
 np.savetxt(f"outputs/mala/increase_data/increase_data_{N}.txt", running_times)
 
 # ==============
-# (N,dim) = (1e4, 5)
 print("\n============\nExperiment 2\n============")
 key = random.PRNGKey(0)
 N = 10000
 dt = 5e-4
+
+# gpu
+# N = 1000000
+# dt = 5e-6
 theta_true, X, y_data = gen_data(key, dim, N)
 grad_log_post = build_value_and_grad_log_post(X, y_data, N)
 running_times = run_3_mala_samplers(key, grad_log_post, N, dim, dt, num_samples, theta_true)
 np.savetxt(f"outputs/mala/increase_data/increase_data_{N}.txt", running_times)
 
 # ==============
-# (N,dim) = (1e5, 5)
 print("\n============\nExperiment 3\n============")
 key = random.PRNGKey(0)
 N = 100000
 dt = 5e-5
+
+# gpu
+# N = 10000000
+# dt = 5e-7
 theta_true, X, y_data = gen_data(key, dim, N)
 grad_log_post = build_value_and_grad_log_post(X, y_data, N)
 running_times = run_3_mala_samplers(key, grad_log_post, N, dim, dt, num_samples, theta_true)
@@ -51,11 +57,14 @@ np.savetxt(f"outputs/mala/increase_data/increase_data_{N}.txt", running_times)
 
 
 # ==============
-# (N,dim) = (1mil, 5)
 print("\n============\nExperiment 4\n============")
 key = random.PRNGKey(0)
 N = 1000000
 dt = 5e-6
+
+# gpu
+# N = 20000000 
+# dt = 5e-8
 theta_true, X, y_data = gen_data(key, dim, N)
 grad_log_post = build_value_and_grad_log_post(X, y_data, N)
 running_times = run_3_mala_samplers(key, grad_log_post, N, dim, dt, num_samples, theta_true)
